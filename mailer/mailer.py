@@ -6,6 +6,12 @@ import email.utils
 
 
 def getSmtpConfig(configLocation):
+    '''
+    configLocation, string: Path to the config file to get.
+    the config file contents are designed to be settings=value
+
+    Returns a dictionary based on the config file.
+    '''
     config = {}
     try:
         with open(configLocation, 'r') as conf:
@@ -19,16 +25,30 @@ def getSmtpConfig(configLocation):
 
 
 def getEmailTemplate(templateLocation):
+    '''
+    templateLocation string: Path to the template to get.
+
+    Returns a jinaj2 template object for the desired template.
+    '''
     try:
         with open(templateLocation, "r") as temp:
             template = temp.read()
-            template = Template(template) 
+            template = Template(template)
         return template
     except FileNotFoundError:
         print(f"Template not found at {templateLocation}!")
 
 
 def sendEmail(emailHeaders, config, template):
+    '''
+    emailHeaders, dict: Expects all email headers SENDER, SEDNERNAME,
+    SPOOFED, RECIPIENT, RECIPIENTNAME, SUBJECT
+
+    config, dict: Expects a dictionary containg the connection info
+    for the SMTP server.
+
+    template, jinja2 template object: Is used to create the email body.
+    '''
     # Create the html body from emailHeaders
     body = template.render(emailHeaders)
 
@@ -54,14 +74,3 @@ def sendEmail(emailHeaders, config, template):
         print(f"Error: {e}")
     else:
         print("Email successfully sent!")
-
-
-emailHeaders = {}
-emailHeaders["SENDER"] = 'brandon@limerock.xyz'
-emailHeaders["SENDERNAME"] = 'Brandon Duffy'
-emailHeaders["SPOOFED"] = 'sam@limerock.com'
-emailHeaders["RECIPIENT"] = 'samuel.richardson@mymail.champlain.edu'
-emailHeaders["RECIPIENTNAME"] = 'Samuel Richardson'
-emailHeaders["SUBJECT"] = 'Email Delivery Test'
-
-sendEmail(emailHeaders, getSmtpConfig('../../mailconfig.txt'), getEmailTemplate('template.html'))
