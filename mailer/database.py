@@ -59,7 +59,6 @@ target_last VARCHAR(255) NOT NULL,
 target_email VARCHAR(255) NOT NULL,
 target_position VARCHAR(255) NOT NULL,
 target_department VARCHAR(255) NOT NULL,
-target_phone VARCHAR(255),
 campaign_name VARCHAR(255) NOT NULL,
 campaign_id INT NOT NULL,
 target_company VARCHAR(255) NOT NULL,
@@ -75,7 +74,6 @@ from_email VARCHAR(255) NOT NULL,
 mail_from_email VARCHAR(255) NOT NULL,
 sender_position VARCHAR(255) NOT NULL,
 sender_department VARCHAR(255) NOT NULL,
-sender_phone VARCHAR(20),
 campaign_name VARCHAR(255) NOT NULL,
 campaign_id INT NOT NULL,
 sender_company VARCHAR(255) NOT NULL,
@@ -110,21 +108,22 @@ def addCampaign(connection, campaignName, campaignCompany):
     execute_query(connection, query, values)
 
 
-def addTarget(connection, targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, targetPhone, campaignName, campaignId, targetCompany):
+def addTarget(connection, targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignName, campaignId, targetCompany):
     query = """
-    INSERT INTO Targets (target_first, target_last, target_email, target_position, target_department, target_phone, campaign_name, campaign_id, target_company, date_created)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+    INSERT INTO Targets (target_first, target_last, target_email, target_position, target_department, campaign_name, campaign_id, target_company, date_created)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
     """
-    values = (targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, targetPhone, campaignName, campaignId, targetCompany)
+    values = (targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignName, campaignId, targetCompany)
     execute_query(connection, query, values)
 
 
-def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignName, campaignId, senderCompany, senderPhone=None):
+def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition,
+              senderDepartment, campaignName, campaignId, senderCompany):
     query = """
-    INSERT INTO Senders (sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department, sender_phone, campaign_name, campaign_id, sender_company, date_created)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+    INSERT INTO Senders (sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department, campaign_name, campaign_id, sender_company, date_created)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
     """
-    values = (senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, senderPhone, campaignName, campaignId, senderCompany)
+    values = (senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignName, campaignId, senderCompany)
     execute_query(connection, query, values)
 
 
@@ -153,7 +152,7 @@ def deleteSender(connection, sender_id):
 
 
 def deleteSentEmail(connection, email_id):
-    query = "DELETE FROM communication WHERE id = %s"
+    query = "DELETE FROM Sent_Emails WHERE id = %s"
     execute_query(connection, query, (email_id,))
 
 

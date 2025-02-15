@@ -1,0 +1,23 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_container
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # Change this to a strong password
+      MYSQL_DATABASE: mailer  # This creates the 'mailer' database
+      MYSQL_USER: mailer_user
+      MYSQL_PASSWORD: mailerpassword  # Change this to a strong password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mariadb_data:
+
+# The 'init.sql' file can contain additional SQL commands if needed.
+# Example init.sql:
+# CREATE DATABASE IF NOT EXISTS mailer;
+
