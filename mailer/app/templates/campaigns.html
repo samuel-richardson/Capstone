@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Manager</title>
+</head>
+<body>
+    <h2>Current Campaigns</h2>
+    <form method="POST">
+        <table border="1">
+            <tr>
+                <th>Select</th>
+                <th>ID</th>
+                <th>Campaign Name</th>
+                <th>Company</th>
+                <th>Date Created</th>
+            </tr>
+            {% for campaign in campaigns %}
+            <tr>
+                <td><input type="checkbox" name="campaign_ids" value="{{ campaign.campaign_id }}"></td>
+                <td>{{ campaign.campaign_id }}</td>
+                <td>{{ campaign.campaign_name }}</td>
+                <td>{{ campaign.campaign_company }}</td>
+                <td>{{ campaign.date_created }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit" name="delete_campaigns">Delete Selected</button>
+    </form>
+
+    <h2>Add New Campaign</h2>
+    <form method="POST">
+        <label for="campaign_name">Campaign Name:</label>
+        <input type="text" name="campaign_name" required>
+        <label for="campaign_company">Company:</label>
+        <input type="text" name="campaign_company" required>
+        <button type="submit" name="add_campaign">Add Campaign</button>
+    </form>
+</body>
+</html>
+

@@ -1,6 +1,5 @@
 import mysql.connector
 from mysql.connector import Error
-import pandas as pd
 
 
 def getSqlConfiguration(configLocation):
@@ -44,7 +43,7 @@ def execute_query(connection, query, values=()):
 
 def createTables(connection):
     campaignTable = '''
-CREATE TABLE Campaigns (
+CREATE TABLE IF NOT EXISTS  Campaigns (
 campaign_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 campaign_name VARCHAR(255) NOT NULL,
 campaign_company VARCHAR(255) NOT NULL,
@@ -52,7 +51,7 @@ date_created DATE
 );
     '''
     targetTable = '''
-CREATE TABLE Targets (
+CREATE TABLE IF NOT EXISTS Targets (
 target_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 target_first VARCHAR(255) NOT NULL,
 target_last VARCHAR(255) NOT NULL,
@@ -66,7 +65,7 @@ date_created DATE
     );
     '''
     senderTable = '''
-CREATE TABLE Senders (
+CREATE TABLE IF NOT EXISTS Senders (
 sender_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 sender_first VARCHAR(255) NOT NULL,
 sender_last VARCHAR(255) NOT NULL,
@@ -81,7 +80,7 @@ date_created DATE
     );
     '''
     sentEmailsTable = '''
-CREATE TABLE Sent_Emails (
+CREATE TABLE IF NOT EXISTS Sent_Emails (
 id INT AUTO_INCREMENT PRIMARY KEY,
 sender_first VARCHAR(255),
 sender_last VARCHAR(255),
@@ -90,9 +89,9 @@ email_from VARCHAR(255),
 target_first VARCHAR(255),
 target_last VARCHAR(255),
 target_email VARCHAR(255),
-time_sent DATETIME 
+time_sent DATETIME
 );
-    ''' 
+    '''
     execute_query(connection, campaignTable)
     execute_query(connection, targetTable)
     execute_query(connection, senderTable)
@@ -107,52 +106,5 @@ def addCampaign(connection, campaignName, campaignCompany):
     values = (campaignName, campaignCompany)
     execute_query(connection, query, values)
 
-
-def addTarget(connection, targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignName, campaignId, targetCompany):
-    query = """
-    INSERT INTO Targets (target_first, target_last, target_email, target_position, target_department, campaign_name, campaign_id, target_company, date_created)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
-    """
-    values = (targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignName, campaignId, targetCompany)
-    execute_query(connection, query, values)
-
-
-def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition,
-              senderDepartment, campaignName, campaignId, senderCompany):
-    query = """
-    INSERT INTO Senders (sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department, campaign_name, campaign_id, sender_company, date_created)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-    """
-    values = (senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignName, campaignId, senderCompany)
-    execute_query(connection, query, values)
-
-
-def addSentEmail(connection, senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, targetEmail):
-    query = """
-    INSERT INTO Sent_Emails (sender_first, sender_last, email_mail_from, email_from, target_first, target_last, target_email, time_sent)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
-    """
-    values = (senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, targetEmail)
-    execute_query(connection, query, values)
-
-
-def deleteCampaign(connection, campaign_id):
-    query = "DELETE FROM Campaigns WHERE campaign_id = %s"
-    execute_query(connection, query, (campaign_id,))
-
-
-def deleteTarget(connection, target_id):
-    query = "DELETE FROM Targets WHERE target_id = %s"
-    execute_query(connection, query, (target_id,))
-
-
-def deleteSender(connection, sender_id):
-    query = "DELETE FROM Senders WHERE sender_id = %s"
-    execute_query(connection, query, (sender_id,))
-
-
-def deleteSentEmail(connection, email_id):
-    query = "DELETE FROM Sent_Emails WHERE id = %s"
-    execute_query(connection, query, (email_id,))
 
 
