@@ -255,8 +255,12 @@ def sendEmailByCampaign(connection, campaignId, senderId, serverId):
     serverQuery = "SELECT server_host, server_port, server_user, server_password FROM Email_Servers WHERE server_id = %s"
     server = execute_query(connection, serverQuery, (serverId,))
 
+    emailHeaders = {
+        'SENDERNAME': f'{senderQuery[0]} {senderQuery[1]}',
+        'SENDER': f'{senderQuery[3]}',
+        'SPOOFED': f'{senderQuery[2]}'
+    }
     print(targetsQuery)
     print(senderQuery)
     print(serverQuery)
-
-
+    
