@@ -1,6 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 import pandas as pd
+import uuid
 import mailer
 
 
@@ -34,20 +35,20 @@ def create_db_connection(host_name, user_name, user_password, db_name):
 
 
 def execute_query(connection, query, values=()):
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
     try:
-        result = cursor.execute(query, values)
-        result = result.fetchone()
+        cursor.execute(query, values)
+        # result = cursor.fetchall()
         connection.commit()
         print("Query successful:")
-        return result
+        return cursor
     except Error as err:
         print(f"Error: '{err}'")
 
 
 def createTables(connection):
     campaignTable = '''
-CREATE TABLE Campaigns (
+CREATE TABLE IF NOT EXISTS Campaigns (
 campaign_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 campaign_name VARCHAR(255) NOT NULL,
 campaign_company VARCHAR(255) NOT NULL,
@@ -55,7 +56,7 @@ date_created DATE
     );
     '''
     targetTable = '''
-CREATE TABLE Targets (
+CREATE TABLE IF NOT EXISTS Targets (
 target_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 target_first VARCHAR(255) NOT NULL,
 target_last VARCHAR(255) NOT NULL,
@@ -69,7 +70,7 @@ date_created DATE
     );
     '''
     senderTable = '''
-CREATE TABLE Senders (
+CREATE TABLE IF NOT EXISTS Senders (
 sender_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 sender_first VARCHAR(255) NOT NULL,
 sender_last VARCHAR(255) NOT NULL,
@@ -84,7 +85,7 @@ date_created DATE
     );
     '''
     sentEmailsTable = '''
-CREATE TABLE Sent_Emails (
+CREATE TABLE IF NOT EXISTS Sent_Emails (
 email_id VARCHAR(255) NOT NULL PRIMARY KEY,
 sender_first VARCHAR(255) NOT NULL,
 sender_last VARCHAR(255) NOT NULL,
@@ -98,7 +99,7 @@ time_sent DATETIME
     );
     '''
     emailServersTable = '''
-CREATE TABLE Email_Servers (
+CREATE TABLE IF NOT EXISTS Email_Servers (
 server_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 server_name VARCHAR(255) NOT NULL,
 server_host VARCHAR(255) NOT NULL,
@@ -141,12 +142,21 @@ def addCampaign(connection, campaignName, campaignCompany):
     execute_query(connection, query, values)
 
 
-def addTarget(connection, targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignName, campaignId, targetCompany):
+def getCampaingInfo(connection, campaign_id):
+    query = "SELECT campaign_name, campaign_company FROM Campaigns where campaign_id = %s"
+    campaign = execute_query(connection, query, (campaign_id,)).fetchone()
+    if not campaign:
+        print(f"Could not retrive campaign {campaign_id}")
+    return (campaign[0], campaign[1])
+
+
+def addTarget(connection, targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignId):
     query = """
     INSERT INTO Targets (target_first, target_last, target_email, target_position, target_department, campaign_name, campaign_id, target_company, date_created)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
     """
-    values = (targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignName, campaignId, targetCompany)
+    campaignInfo = getCampaingInfo(connection, campaignId)
+    values = (targetFirst, targetLast, targetEmail, targetPosition, targetDepartment, campaignInfo[0], campaignId, campaignInfo[1])
     execute_query(connection, query, values)
 
 
@@ -155,8 +165,7 @@ def addTargetsCSV(connection, file, campaignId):
     csvfile format first,last,email,position,department
     '''
 
-    campaignQuery = "SELECT campaign_name, campaign_company FROM Campaigns where campaign_id = %s"
-    campaignResults = execute_query(connection, campaignQuery, (campaignId,))
+    campaignResults = getCampaingInfo(connection, campaignId)
 
     if not campaignResults:
         print("Could not retrive the selected campaign!")
@@ -170,13 +179,13 @@ def addTargetsCSV(connection, file, campaignId):
         addTarget(connection, row['first'], row['last'], row['email'], row['position'], row['department'], campaignName, campaignId, campaignCompany)
 
 
-def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition,
-              senderDepartment, campaignName, campaignId, senderCompany):
+def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignId):
     query = """
     INSERT INTO Senders (sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department, campaign_name, campaign_id, sender_company, date_created)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
     """
-    values = (senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignName, campaignId, senderCompany)
+    campaignInfo = getCampaingInfo(connection, campaignId)
+    values = (senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignInfo[0], campaignId, campaignInfo[1])
     execute_query(connection, query, values)
 
 
@@ -185,8 +194,7 @@ def addSendersCSV(connection, file, campaignId):
     csvfile format first,last,email,mail_from,position,department
     '''
 
-    campaignQuery = "SELECT campaign_name, campaign_company FROM Campaigns where campaign_id = %s"
-    campaignResults = execute_query(connection, campaignQuery, (campaignId,))
+    campaignResults = getCampaingInfo(connection, campaignId)
 
     if not campaignResults:
         print("Could not retrive the selected campaign!")
@@ -202,19 +210,20 @@ def addSendersCSV(connection, file, campaignId):
 
 def addSentEmail(connection, senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, targetEmail, campaignId):
     query = """
-    INSERT INTO Sent_Emails (email_id, sender_first, sender_last, email_mail_from, email_from, target_first, target_last, target_email, time_sent)
-    VALUES (UUID(), %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+    INSERT INTO Sent_Emails (email_id, sender_first, sender_last, email_mail_from, email_from, target_first, target_last, target_email, campaign_id, time_sent)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
     """
-    values = (senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, campaignId)
+    uniqueID = str(uuid.uuid4())
+    values = (uniqueID, senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, targetEmail, campaignId)
     execute_query(connection, query, values)
-    uuidQuery = "select last_insert_uuid();"
-    uuid = execute_query(connection, uuidQuery)
-    return uuid
+    return uniqueID
 
 
 def deleteCampaignById(connection, campaign_id):
-    query = "DELETE FROM Campaigns WHERE campaign_id = %s"
-    execute_query(connection, query, (campaign_id,))
+    tables = ['Campaigns', 'Targets', 'Senders', 'Sent_Emails']
+    for table in tables:
+        query = f"DELETE FROM {table} WHERE campaign_id = %s"
+        execute_query(connection, query, (campaign_id,))
 
 
 def deleteTargetById(connection, target_id):
@@ -247,20 +256,28 @@ def listTables(connection):
     result = pd.read_sql(connection, query)
     print(result.to_string())
 
+
 def sendEmailByCampaign(connection, campaignId, senderId, serverId):
     targetsQuery = "SELECT target_first, target_last, target_email, target_position, target_department FROM Targets where campaign_id = %s;"
-    targets = execute_query(connection, targetsQuery, (campaignId,))
-    senderQuery = "SELECT sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department where campaign_id = %s;"
-    sender = execute_query(connection, senderQuery, (senderId,))
+    targets = execute_query(connection, targetsQuery, (campaignId,)).fetchall()
+    senderQuery = "SELECT sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department FROM Senders where campaign_id = %s;"
+    sender = execute_query(connection, senderQuery, (senderId,)).fetchone()
     serverQuery = "SELECT server_host, server_port, server_user, server_password FROM Email_Servers WHERE server_id = %s"
-    server = execute_query(connection, serverQuery, (serverId,))
+    server = execute_query(connection, serverQuery, (serverId,)).fetchall()
 
     emailHeaders = {
-        'SENDERNAME': f'{senderQuery[0]} {senderQuery[1]}',
-        'SENDER': f'{senderQuery[3]}',
-        'SPOOFED': f'{senderQuery[2]}'
+        'SENDERNAME': f'{sender[0]} {sender[1]}',
+        'SENDER': sender[3],
+        'SPOOFED': sender[2],
+        'SENDERPOSITION': sender[4],
+        'SENDERDEPARTMENT': sender[5]
     }
-    print(targetsQuery)
-    print(senderQuery)
-    print(serverQuery)
-    
+
+    for target in targets:
+        emailHeaders['RECIPIENT'] = target[2]
+        emailHeaders['RECIPIENTNAME'] = f"{target[0]} {target[1]}"
+        emailHeaders['RECIPIENTPOSITION'] = target[3]
+        emailHeaders['RECIPIENTDEPARTMENT'] = target[4]
+        emailHeaders['uuid'] = addSentEmail(connection, sender[0], sender[1], sender[3], sender[2], target[0], target[1], target[2], campaignId)
+        print(emailHeaders)
+        
