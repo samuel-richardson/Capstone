@@ -16,4 +16,4 @@ conn = db.create_db_connection(config["HOST"], config["USER"], config["PASSWORD"
 
 db.addTarget(conn, 'first', 'last', 'targetEmail@mail.com', 'Position', 'department', 1)
 
-db.sendEmailByCampaign(conn, 1, 1, 1)
+db.sendEmailByCampaign(conn, 1, 1, 1, "test email")
