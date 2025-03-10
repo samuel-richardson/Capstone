@@ -6,7 +6,7 @@ conn = db.create_db_connection(config["HOST"], config["USER"], config["PASSWORD"
 
 #db.deleteCampaignById(conn, 1)
 
-#db.createTables(conn)
+db.createTables(conn)
 
 #db.addCampaign(conn, 'test', 'test_company')
 

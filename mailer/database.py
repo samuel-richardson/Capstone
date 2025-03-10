@@ -108,11 +108,25 @@ server_user VARCHAR(255) NOT NULL,
 server_password VARCHAR(255) NOT NULL
     );
     '''
+
+    phished = '''
+CREATE TABLE IF NOT EXISTS phished (
+phished_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+email_id VARCHAR(255) NOT NULL,
+campaign_id INT NOT NULL,
+connection_ip VARCHAR(255) NOT NULL,
+browser_user_agent VARCHAR(255) NOT NULL,
+url VARCHAR(255) NOT NULL,
+time DATETIME NOT NULL,
+date_submitted BOOLEAN NOT NULL
+    );
+    '''
     execute_query(connection, campaignTable)
     execute_query(connection, targetTable)
     execute_query(connection, senderTable)
     execute_query(connection, sentEmailsTable)
     execute_query(connection, emailServersTable)
+    execute_query(connection, phished)
 
 
 def addEmailServer(connection, serverName, configLocation):
@@ -254,7 +268,7 @@ def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject, tem
     senderQuery = "SELECT sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department FROM Senders where sender_id = %s;"
     sender = execute_query(connection, senderQuery, (senderId,)).fetchone()
     serverQuery = "SELECT server_host, server_port, server_user, server_password FROM Email_Servers WHERE server_id = %s"
-    server = execute_query(connection, serverQuery, (serverId,)).fetchall()
+    server = execute_query(connection, serverQuery, (serverId,)).fetchone()
 
     server_conf = {
         'HOST': server[0],
@@ -272,6 +286,7 @@ def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject, tem
         'SUBJECT': subject
     }
 
+    template = mailer.getEmailTemplate(template)
     for target in targets:
         emailHeaders['RECIPIENT'] = target[2]
         emailHeaders['RECIPIENTNAME'] = f"{target[0]} {target[1]}"

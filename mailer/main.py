@@ -29,6 +29,7 @@ menu = """
 
 config = db.getSqlConfiguration("dbconfig.txt")
 CONN = db.create_db_connection(config["HOST"], config["USER"], config["PASSWORD"], config["DATABASE"])
+db.createTables(CONN)
 
 
 def select_campaign():
@@ -124,7 +125,7 @@ def add_sender():
     email_mail_from = input("Enter sender's mail from email: ")
     sender_position = input("Enter target's position: ")
     sender_department = input("Enter target's department: ")
-    db.addTarget(CONN, sender_first, sender_last, email_mail_from, email_from, sender_position, sender_department, campaign_number)
+    db.addSender(CONN, sender_first, sender_last, email_mail_from, email_from, sender_position, sender_department, campaign_number)
     return
 
 
@@ -146,7 +147,7 @@ def delete_senders():
 
 
 def show_mail_servers():
-    db.displaytable(CONN, 'Email_Servers')
+    db.displayTable(CONN, 'Email_Servers')
     return
 
 
