@@ -165,18 +165,10 @@ def addTargetsCSV(connection, file, campaignId):
     csvfile format first,last,email,position,department
     '''
 
-    campaignResults = getCampaignInfo(connection, campaignId)
-
-    if not campaignResults:
-        print("Could not retrive the selected campaign!")
-        return
-
-    campaignName, campaignCompany = campaignResults[0], campaignResults[1]
-
     csv_data = pd.read_csv(file)
 
-    for _,row in csv_data.iterrows():
-        addTarget(connection, row['first'], row['last'], row['email'], row['position'], row['department'], campaignName, campaignId, campaignCompany)
+    for _, row in csv_data.iterrows():
+        addTarget(connection, row['first'], row['last'], row['email'], row['position'], row['department'], campaignId)
 
 
 def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignId):
@@ -194,18 +186,10 @@ def addSendersCSV(connection, file, campaignId):
     csvfile format first,last,email,mail_from,position,department
     '''
 
-    campaignResults = getCampaignInfo(connection, campaignId)
-
-    if not campaignResults:
-        print("Could not retrive the selected campaign!")
-        return
-
-    campaignName, campaignCompany = campaignResults[0], campaignResults[1]
-
     csv_data = pd.read_csv(file)
 
     for _, row in csv_data.iterrows():
-        addTarget(connection, row['first'], row['last'], row['email'], row['mail_from'], row['position'], row['department'], campaignName, campaignId, campaignCompany)
+        addTarget(connection, row['first'], row['last'], row['email'], row['mail_from'], row['position'], row['department'], campaignId)
 
 
 def addSentEmail(connection, senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, targetEmail, campaignId):
@@ -247,17 +231,37 @@ def deleteServerById(connection, server_id):
 
 
 def displayTable(connection, table):
-    result = pd.read_sql(connection, table)
-    print(result.to_string())
- 
+    query = f"SELECT * FROM {table}"
+    cursor = execute_query(connection, query)
+    data = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    df = pd.DataFrame(data, columns=columns)
+    print(df.to_string(index=False))
 
-def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject):
+
+def displayTableByCampaign(connection, table, campaignId):
+    query = f"SELECT * FROM {table} WHERE campaign_id = %s"
+    cursor = execute_query(connection, query, (campaignId,))
+    data = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    df = pd.DataFrame(data, columns=columns)
+    print(df.to_string(index=False))
+
+
+def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject, template):
     targetsQuery = "SELECT target_first, target_last, target_email, target_position, target_department FROM Targets where campaign_id = %s;"
     targets = execute_query(connection, targetsQuery, (campaignId,)).fetchall()
     senderQuery = "SELECT sender_first, sender_last, from_email, mail_from_email, sender_position, sender_department FROM Senders where sender_id = %s;"
     sender = execute_query(connection, senderQuery, (senderId,)).fetchone()
     serverQuery = "SELECT server_host, server_port, server_user, server_password FROM Email_Servers WHERE server_id = %s"
     server = execute_query(connection, serverQuery, (serverId,)).fetchall()
+
+    server_conf = {
+        'HOST': server[0],
+        'PORT': server[1],
+        'USERNAME_SMTP': server[2],
+        'PASSWORD_SMTP': server[3]
+    }
 
     emailHeaders = {
         'SENDERNAME': f'{sender[0]} {sender[1]}',
@@ -274,4 +278,4 @@ def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject):
         emailHeaders['RECIPIENTPOSITION'] = target[3]
         emailHeaders['RECIPIENTDEPARTMENT'] = target[4]
         emailHeaders['uuid'] = addSentEmail(connection, sender[0], sender[1], sender[3], sender[2], target[0], target[1], target[2], campaignId)
-        print(emailHeaders)        
+        mailer.sendEmail(emailHeaders, server_conf, template)
