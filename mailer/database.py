@@ -244,6 +244,11 @@ def deleteServerById(connection, server_id):
     execute_query(connection, query, (server_id,))
 
 
+def deletePhishedById(connection, phished_id):
+    query = "DELETE FROM phished WHERE [phished_id = %s"
+    execute_query(connection, query, (phished_id,))
+
+
 def displayTable(connection, table):
     query = f"SELECT * FROM {table}"
     cursor = execute_query(connection, query)
