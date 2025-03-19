@@ -210,14 +210,14 @@ def show_sent():
 def send_emails():
     sender = input("Enter sender ID: ")
     query = "SELECT COUNT(*) FROM Senders WHERE sender_id = %s"
-    row_count = db.execute_query(CONN, query, (choice,)).fetchone()
+    row_count = db.execute_query(CONN, query, (sender,)).fetchone()
     row_count = row_count[0]
     if row_count < 0:
         print("Invalid sender ID.")
         return
     mail_server = input("Enter mail server ID: ")
-    query = "SELECT COUNT(*) FROM Maile_Servers WHERE server_id = %s"
-    row_count = db.execute_query(CONN, query, (choice,)).fetchone()
+    query = "SELECT COUNT(*) FROM Email_Servers WHERE server_id = %s"
+    row_count = db.execute_query(CONN, query, (mail_server,)).fetchone()
     row_count = row_count[0]
     if row_count < 0:
         print("Invalid Maile Server ID.")
@@ -255,7 +255,7 @@ def delete_sent_emails():
 
 
 def show_phished():
-    db.displayTable('phished')
+    db.displayTable(CONN, 'phished')
     return
 
 

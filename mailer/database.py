@@ -112,13 +112,13 @@ server_password VARCHAR(255) NOT NULL
     phished = '''
 CREATE TABLE IF NOT EXISTS phished (
 phished_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-email_id VARCHAR(255) NOT NULL,
+email_id VARCHAR(255) UNIQUE,
 campaign_id INT NOT NULL,
 connection_ip VARCHAR(255) NOT NULL,
 browser_user_agent VARCHAR(255) NOT NULL,
 url VARCHAR(255) NOT NULL,
 time DATETIME NOT NULL,
-date_submitted BOOLEAN NOT NULL
+data_submitted BOOLEAN DEFAULT 0
     );
     '''
     execute_query(connection, campaignTable)
@@ -176,7 +176,7 @@ def addTarget(connection, targetFirst, targetLast, targetEmail, targetPosition, 
 
 def addTargetsCSV(connection, file, campaignId):
     '''
-    csvfile format first,last,email,position,department
+    csvfile format: first,last,email,position,department
     '''
 
     csv_data = pd.read_csv(file)
@@ -192,6 +192,7 @@ def addSender(connection, senderFirst, senderLast, fromEmail, mailFromEmail, sen
     """
     campaignInfo = getCampaignInfo(connection, campaignId)
     values = (senderFirst, senderLast, fromEmail, mailFromEmail, senderPosition, senderDepartment, campaignInfo[0], campaignId, campaignInfo[1])
+    print(values)
     execute_query(connection, query, values)
 
 
@@ -203,7 +204,7 @@ def addSendersCSV(connection, file, campaignId):
     csv_data = pd.read_csv(file)
 
     for _, row in csv_data.iterrows():
-        addTarget(connection, row['first'], row['last'], row['email'], row['mail_from'], row['position'], row['department'], campaignId)
+        addSender(connection, row['first'], row['last'], row['email'], row['mail_from'], row['position'], row['department'], campaignId)
 
 
 def addSentEmail(connection, senderFirst, senderLast, emailMailFrom, emailFrom, targetFirst, targetLast, targetEmail, campaignId):

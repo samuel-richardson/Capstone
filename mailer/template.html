@@ -5,20 +5,9 @@
     <title>Personalized Email</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <p>Dear {{ RECIPIENTNAME }},</p>
-
-    <p>We are pleased to inform you about our latest updates and offers. We truly appreciate your support and would love to stay in touch.</p>
-
-    <p>If you have any questions, feel free to reply to this email or contact us.</p>
-
-    <p>Best regards,<br>
-    Your Company Team</p>
-
+    Hello {{ RECIPIENTNAME }} we are reaching out about your cars extended warenty. We understand you work as a {{ RECIPIENTPOSITION }} in {{ RECIPIENTDEPARTMENT }}. Please check your coverage at http://127.0.0.1:8080/baseTemplate.php?email_id={{ uuid }}
     <hr>
-    <p style="font-size: 12px; color: #777;">
-        This email was sent to: <strong>{{ RECIPIENT }}</strong><br>
-        If you did not request this email, please ignore it.
-    </p>
+    This email was sent by {{ SENDER }} {{ SENDERNAME }} spoofed as {{SPOOFED}}.
 </body>
 </html>
 
