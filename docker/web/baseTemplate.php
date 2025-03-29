@@ -1,11 +1,11 @@
 <?php
 
 // Database connection settings
-$host = 'mariadb';
+$host = '127.0.0.1';
 $port = 3306;
 $dbname = 'mailer';
 $username = 'mailer_user';
-$password = 'mailerpassword';
+$password = 'LBbY5uAWLNc!pBaU@5X!tS';
 
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8", $username, $password);
@@ -14,7 +14,6 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Check if email_id is provided in the URL
 if (!isset($_GET['email_id']) || empty($_GET['email_id'])) {
     die("You do not have permission to view this site.");
 }

@@ -38,7 +38,7 @@ def get_valid_input(message):
     if not user_input:
         print("User input not valid.")
         return False
-    if re.match('[a-zA-Z0-9@.]+', user_input):
+    if re.match('[a-zA-Z0-9@. ]+', user_input):
         return user_input
     else:
         print("Invalid Input.")
@@ -157,7 +157,7 @@ def add_sender():
     if not sender_first and not sender_last and not email_from and not email_mail_from and not sender_position and not sender_department:
         print("Invalid Input: Sender not added.")
         return 
-    db.addSender(CONN, sender_first, sender_last, email_mail_from, email_from, sender_position, sender_department, campaign_number)
+    db.addSender(CONN, sender_first, sender_last, email_from, email_mail_from, sender_position, sender_department, campaign_number)
     return
 
 

@@ -246,7 +246,7 @@ def deleteServerById(connection, server_id):
 
 
 def deletePhishedById(connection, phished_id):
-    query = "DELETE FROM phished WHERE [phished_id = %s"
+    query = "DELETE FROM phished WHERE phished_id = %s"
     execute_query(connection, query, (phished_id,))
 
 

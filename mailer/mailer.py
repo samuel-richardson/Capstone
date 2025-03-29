@@ -55,8 +55,8 @@ def sendEmail(emailHeaders, config, template):
     # Create the Email
     msg = EmailMessage()
     msg['Mail From'] = emailHeaders['SENDER']
-    msg['From'] = email.utils.formataddr((emailHeaders["SENDERNAME"], emailHeaders["SENDER"]))
-    #msg['From'] = f'{emailHeaders['SENDERNAME']} <{emailHeaders['SPOOFED']}>'
+    #msg['From'] = email.utils.formataddr((emailHeaders["SENDERNAME"], emailHeaders["SENDER"]))
+    msg['From'] = f'{emailHeaders['SENDERNAME']} <{emailHeaders['SPOOFED']}>'
     msg['Subject'] = emailHeaders["SUBJECT"]
     msg['To'] = emailHeaders["RECIPIENT"]
     msg.set_content(body, subtype='html')
