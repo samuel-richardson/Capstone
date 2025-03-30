@@ -284,6 +284,8 @@ def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject, tem
     }
 
     emailHeaders = {
+        'SENDERFIRST': sender[0],
+        'SENDERLAST': sender[1],
         'SENDERNAME': f'{sender[0]} {sender[1]}',
         'SENDER': sender[3],
         'SPOOFED': sender[2],
@@ -295,6 +297,8 @@ def sendEmailByCampaign(connection, campaignId, senderId, serverId, subject, tem
     template = mailer.getEmailTemplate(template)
     for target in targets:
         emailHeaders['RECIPIENT'] = target[2]
+        emailHeaders['RECIPIENTFIRST'] = target[0]
+        emailHeaders['RECIPIENTLAST'] = target[1]
         emailHeaders['RECIPIENTNAME'] = f"{target[0]} {target[1]}"
         emailHeaders['RECIPIENTPOSITION'] = target[3]
         emailHeaders['RECIPIENTDEPARTMENT'] = target[4]
