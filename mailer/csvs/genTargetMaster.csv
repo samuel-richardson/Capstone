@@ -1,10 +1,10 @@
 first,last,email,position,department
-Meg,Hammond,meg@generatorvt.com,Executive Director, 
+Meg,Hammond,meg@generatorvt.com,Executive Director,Management 
 Lucy,Powell,lucy@generator.com,Coordinator,Membership & Communication
-Alex, ,Alex@generatorvt.com, , 
+Alex,Hahl,Alex@generatorvt.com,Operations & Safety Technician,Operations 
 Greg,Maino,greg@generatorvt.com,Director,Communication & Membership
-Jake, ,jake@generatorvt.com, , 
-Katya, ,katya@generatorvt.com, , 
-Syd, ,syd@generatorvt.com, , 
-Mason,Merriam,mason@generatorvt.com, , 
-Veronica,Newton,veronica@generatorvt.com,Senior Director of Programs and Partnerships, 
+Jake,Ducharme,jake@generatorvt.com,Program Coordinator,Coordinator
+Katya,Luchanskaya,katya@generatorvt.com,Development Director,Management 
+Syd,Telek,syd@generatorvt.com,Lead Instructor & Curriculum Specialist,Operations
+Mason,Merriam,mason@generatorvt.com,Director of Facility & Operations,Management 
+Veronica,Newton,veronica@generatorvt.com,Senior Director of Programs and Partnerships,Management 
