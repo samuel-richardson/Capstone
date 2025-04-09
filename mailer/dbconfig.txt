@@ -1,4 +1,0 @@
-HOST=127.0.0.1
-USER=mailer_user
-PASSWORD=LBbY5uAWLNc!pBaU@5X!tS
-DATABASE=mailer
